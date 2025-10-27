@@ -1,0 +1,14 @@
+{"timestamp": "2025-10-23T09:52:47.108443", "influencer_id": 1, "influencer_name": "小花 (Flora)", "role": "user", "content": "hello"}
+{"timestamp": "2025-10-23T09:52:48.259101", "influencer_id": 1, "influencer_name": "小花 (Flora)", "role": "assistant", "content": "[AI離線模式] 已收到您的訊息：'hello'"}
+{"timestamp": "2025-10-23T10:33:45.442065", "influencer_id": 1, "influencer_name": "小花 (Flora)", "role": "user", "content": "hello"}
+{"timestamp": "2025-10-23T10:33:45.442980", "influencer_id": 1, "influencer_name": "小花 (Flora)", "role": "assistant", "content": "[AI離線模式] 已收到您的訊息：'hello'"}
+{"timestamp": "2025-10-24T10:38:55.411845", "influencer_id": 4, "influencer_name": "西瓦 (Siva)", "role": "user", "content": "Hello~"}
+{"timestamp": "2025-10-24T10:38:55.604539", "influencer_id": 4, "influencer_name": "西瓦 (Siva)", "role": "assistant", "content": "AI 服務目前無法使用，請稍後再試。"}
+{"timestamp": "2025-10-24T10:43:34.217087", "influencer_id": 4, "influencer_name": "西瓦 (Siva)", "role": "user", "content": "Hello~"}
+{"timestamp": "2025-10-24T10:43:34.537182", "influencer_id": 4, "influencer_name": "西瓦 (Siva)", "role": "assistant", "content": "AI 服務目前無法使用，請稍後再試。"}
+{"timestamp": "2025-10-24T10:51:28.294327", "influencer_id": 4, "influencer_name": "西瓦 (Siva)", "role": "user", "content": "Hello~"}
+{"timestamp": "2025-10-24T10:51:29.337460", "influencer_id": 4, "influencer_name": "西瓦 (Siva)", "role": "assistant", "content": "Hello there! How can I help you today? 😊"}
+{"timestamp": "2025-10-24T11:01:02.765292", "influencer_id": 4, "influencer_name": "西瓦 (Siva)", "role": "user", "content": "Hello~"}
+{"timestamp": "2025-10-24T11:01:03.518073", "influencer_id": 4, "influencer_name": "西瓦 (Siva)", "role": "assistant", "content": "Hello there! How can I help you today? 😊"}
+{"timestamp": "2025-10-24T11:02:12.495748", "influencer_id": 4, "influencer_name": "西瓦 (Siva)", "role": "user", "content": "我今天好累喔. 你幫我看一下明天我有沒有商案好嗎?\r\n\r\n<info.blockwinery@gmail.com> 於 2025年10月24日 週五 下午7:01寫道：\r\n\r\n> Hello there! How can I help you today? 😊"}
+{"timestamp": "2025-10-24T11:02:14.032284", "influencer_id": 4, "influencer_name": "西瓦 (Siva)", "role": "assistant", "content": "別擔心，我來幫你查查看！\n\n我看了你提供的 email，那封信是來自 `info.blockwinery@gmail.com`，寄件時間是 **2025年10月24日 週五 下午7:01**。\n\n這封信的內容是：\n> Hello there! How can I help you today? 😊\n\n這封信是對方在詢問你有什麼可以幫忙的，**而不是**你明天有商案的通知。\n\n所以，根據這封信來看，**你明天並沒有商案的通知**。\n\n如果你有其他關於商案的郵件，可以再提供給我，我會幫你仔細查看！"}

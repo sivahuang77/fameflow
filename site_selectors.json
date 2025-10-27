@@ -1,0 +1,16 @@
+{
+  "instagram": {
+    "post_container": "article",
+    "post_text": "div._a9zs",
+    "post_image": "img._aagt",
+    "post_timestamp": "time._a9ze",
+    "username_header": "h2._a9zc"
+  },
+  "threads": {
+    "post_container": "div[data-testid='post-container']",
+    "post_text": "div[data-testid='post-text']",
+    "post_image": "img[data-testid='post-image']",
+    "post_timestamp": "time[data-testid='post-timestamp']",
+    "username_header": "a[data-testid='post-author-username']"
+  }
+}

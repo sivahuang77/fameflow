@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FameFlow - 綜合儀表板</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f8f9fa; color: #212549; margin: 0; line-height: 1.6; }
+        .container { max-width: 1400px; margin: auto; padding: 2rem; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #dee2e6; margin-bottom: 1rem; }
+        h1 { font-size: 2.5rem; color: #343a40; margin: 0; padding-bottom: 0.5rem; }
+        h2 { color: #495057; font-size: 1.8rem; margin: 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #dee2e6; vertical-align: middle; }
+        th { background-color: #f1f3f5; font-weight: 600; }
+        tbody tr:hover { background-color: #e9ecef; }
+        .row-clickable { cursor: pointer; }
+        .loading { text-align: center; font-size: 1.2rem; color: #6c757d; padding: 2rem; }
+
+        .action-button { background-color: #007bff; color: white; padding: 0.6rem 1.2rem; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem; }
+        .action-button:hover { background-color: #0056b3; }
+        .delete-button { background-color: #dc3545; font-size: 0.8rem; padding: 0.4rem 0.8rem; }
+        .delete-button:hover { background-color: #c82333; }
+
+        /* Tab Navigation */
+        .tab-nav { border-bottom: 2px solid #dee2e6; margin-bottom: 2rem; display: flex; }
+        .tab-link { background-color: transparent; border: none; padding: 1rem 1.5rem; cursor: pointer; font-size: 1.1rem; margin-bottom: -2px; flex-grow: 1; text-align: center; }
+        .tab-link.active { border-bottom: 2px solid #007bff; font-weight: 600; color: #007bff; }
+        .tab-link:hover:not(.active) { background-color: #e9ecef; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Modal Styles */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: #fefefe; margin: 5% auto; padding: 2rem; border: 1px solid #888; width: 60%; max-width: 800px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); position: relative; }
+        .close-button { color: #aaa; position: absolute; top: 1rem; right: 1.5rem; font-size: 2rem; font-weight: bold; }
+        .close-button:hover, .close-button:focus { color: black; text-decoration: none; cursor: pointer; }
+        .data-item { margin-bottom: 1rem; }
+        .data-item strong { display: block; margin-bottom: 0.25rem; color: #495057; }
+        .data-item input, .data-item textarea, .data-item select { width: 100%; font-family: inherit; font-size: 1rem; padding: 0.5rem; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box; }
+        .data-item textarea { min-height: 60px; resize: vertical; }
+        .modal-footer { margin-top: 2rem; text-align: right; border-top: 1px solid #dee2e6; padding-top: 1rem; }
+        #save-button { background-color: #28a745; }
+        #save-button:hover { background-color: #218838; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>FameFlow 儀表板</h1>
+        </div>
+
+        <div class="tab-nav">
+            <button class="tab-link active" data-tab="influencers">網紅管理</button>
+            <button class="tab-link" data-tab="products">產品管理</button>
+            <button class="tab-link" data-tab="customers">客戶管理</button>
+        </div>
+
+        <!-- Influencers Tab -->
+        <div id="influencers-view" class="tab-content active">
+            <div class="header"><h2>網紅列表</h2><button class="action-button create-button" data-type="influencers">建立新網紅</button></div>
+            <table id="influencers-table"><thead><tr><th>ID</th><th>姓名</th><th>聯絡方式</th><th>個性分析</th><th>操作</th></tr></thead><tbody id="influencers-table-body"></tbody></table>
+        </div>
+
+        <!-- Products Tab -->
+        <div id="products-view" class="tab-content">
+            <div class="header"><h2>產品列表</h2><button class="action-button create-button" data-type="products">建立新產品</button></div>
+            <table id="products-table"><thead><tr><th>ID</th><th>產品公司</th><th>產品名稱</th><th>MSRP</th><th>折扣</th><th>操作</th></tr></thead><tbody id="products-table-body"></tbody></table>
+        </div>
+
+        <!-- Customers Tab -->
+        <div id="customers-view" class="tab-content">
+            <div class="header"><h2>客戶列表</h2><button class="action-button create-button" data-type="customers">建立新客戶</button></div>
+            <table id="customers-table"><thead><tr><th>ID</th><th>公司名稱</th><th>窗口姓名</th><th>窗口電郵</th><th>操作</th></tr></thead><tbody id="customers-table-body"></tbody></table>
+        </div>
+
+        <p class="loading">正在載入資料...</p>
+    </div>
+
+    <!-- Reusable Modal -->
+    <div id="detail-modal" class="modal"><div class="modal-content"><span class="close-button">&times;</span><h2 id="modal-title"></h2><div id="modal-body"></div><div class="modal-footer"><button id="edit-button" class="action-button">編輯</button><button id="save-button" class="action-button" style="display:none;">儲存</button></div></div></div>
+
+    <script>
+        const AppState = { currentView: 'influencers', currentId: null, currentMode: 'view' };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('detail-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalBody = document.getElementById('modal-body');
+            const loadingMessage = document.querySelector('.loading');
+            const editButton = document.getElementById('edit-button');
+            const saveButton = document.getElementById('save-button');
+            const closeButton = document.querySelector('.close-button');
+
+            const api = {
+                influencers: { list: () => fetch('/api/influencers'), get: (id) => fetch(`/api/influencers/${id}`), create: (p) => fetch('/api/influencers', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(p) }), update: (id, p) => fetch(`/api/influencers/${id}`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(p) }), delete: (id) => fetch(`/api/influencers/${id}`, { method: 'DELETE' }) },
+                products: { list: () => fetch('/api/products'), get: (id) => fetch(`/api/products/${id}`), create: (p) => fetch('/api/products', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(p) }), update: (id, p) => fetch(`/api/products/${id}`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(p) }), delete: (id) => fetch(`/api/products/${id}`, { method: 'DELETE' }) },
+                customers: { list: () => fetch('/api/customers'), get: (id) => fetch(`/api/customers/${id}`), create: (p) => fetch('/api/customers', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(p) }), update: (id, p) => fetch(`/api/customers/${id}`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(p) }), delete: (id) => fetch(`/api/customers/${id}`, { method: 'DELETE' }) }
+            };
+
+            function loadTable() {
+                loadingMessage.style.display = 'block';
+                const currentTable = document.getElementById(`${AppState.currentView}-table`);
+                const currentTableBody = document.getElementById(`${AppState.currentView}-table-body`);
+                currentTable.style.display = 'none';
+                currentTableBody.innerHTML = '';
+
+                api[AppState.currentView].list().then(res => res.json()).then(data => {
+                    data.forEach(item => {
+                        const row = currentTableBody.insertRow();
+                        let cells = '';
+                        if (AppState.currentView === 'influencers') {
+                            cells = `<td>${item.id}</td><td>${item.real_name}</td><td>${item.email || 'N/A'}</td><td>${item.personality_analysis || 'N/A'}</td>`;
+                        } else if (AppState.currentView === 'products') {
+                            cells = `<td>${item.id}</td><td>${item.company || 'N/A'}</td><td>${item.product_name}</td><td>${item.msrp || 'N/A'}</td><td>${item.discount_percentage || 'N/A'}%</td>`;
+                        } else if (AppState.currentView === 'customers') {
+                            cells = `<td>${item.id}</td><td>${item.company_name}</td><td>${item.rep_name || 'N/A'}</td><td>${item.rep_email || 'N/A'}</td>`;
+                        }
+                        row.innerHTML = cells.replace(/<td/g, '<td class="row-clickable" data-id="' + item.id + '"') + `<td><button class="action-button delete-button" data-id="${item.id}">刪除</button></td>`;
+                    });
+                    loadingMessage.style.display = 'none';
+                    currentTable.style.display = 'table';
+                }).catch(err => loadingMessage.innerHTML = `無法載入資料: ${err.message}`);
+            }
+
+            const modalFields = {
+                influencers: [ 
+                    { k: 'real_name', l: '真實姓名'}, 
+                    { k: 'email', l: '聯絡電郵'}, 
+                    { k: 'phone', l: '聯絡電話'}, 
+                    { k: 'compensation_preference', l: '報酬偏好', t: 'textarea' },
+                    { k: 'personal_preference', l: '個人偏好', t: 'textarea' },
+                    { k: 'notes', l: '備註', t: 'textarea' },
+                    { k: 'tone_prompt', l: '回應語氣提示', t: 'textarea' },
+                    { k: 'personality_analysis', l: '個性分析', t: 'textarea' }
+                ],
+                products: [ { k: 'company', l: '產品公司', t: 'select' }, { k: 'product_name', l: '產品名稱'}, { k: 'specifications', l: '規格', t: 'textarea' }, { k: 'description', l: '產品說明', t: 'textarea' }, { k: 'msrp', l: 'MSRP'}, { k: 'discount_percentage', l: '優惠折扣成數 (%)'}, { k: 'notes', l: '額外備註', t: 'textarea' } ],
+                customers: [ { k: 'company_name', l: '公司名稱'}, { k: 'rep_name', l: '窗口姓名'}, { k: 'rep_email', l: '窗口電郵'} ]
+            };
+
+            async function renderModal(data, mode) {
+                AppState.currentMode = mode;
+                const isEditing = (mode === 'edit' || mode === 'create');
+                const fields = modalFields[AppState.currentView];
+                let html = '';
+
+                // Render main fields
+                for (const field of fields) {
+                    const value = data[field.k] || '';
+                    let fieldHtml = '';
+                    if (isEditing) {
+                        if (field.t === 'textarea') {
+                            fieldHtml = `<textarea class="edit-mode" data-field="${field.k}">${value}</textarea>`;
+                        } else { // Default to input type
+                            fieldHtml = `<input type="text" class="edit-mode" data-field="${field.k}" value="${value}">`;
+                        }
+                    } else { // Not editing, render view mode
+                        fieldHtml = `<span class="view-mode">${value || 'N/A'}</span>`;
+                    }
+                    html += `<div class="data-item"><strong>${field.l}:</strong>${fieldHtml}</div>`;
+                }
+
+                // Render social accounts for influencers
+                if (AppState.currentView === 'influencers' && !isEditing) {
+                    html += '<div class="data-item"><strong>Social Media Accounts:</strong>';
+                    if (data.social_accounts && data.social_accounts.length > 0) {
+                        html += '<ul>';
+                        data.social_accounts.forEach(acc => {
+                            html += `<li><strong>${acc.platform_name}:</strong> ${acc.display_name} (@${acc.account_id}) - <a href="${acc.url}" target="_blank">Link</a></li>`;
+                        });
+                        html += '</ul>';
+                    } else {
+                        html += '<span class="view-mode">N/A</span>';
+                    }
+                    html += '</div>';
+                }
+
+                // Add placeholder for posts
+                if (AppState.currentView === 'influencers' && !isEditing) {
+                    html += '<hr><h4>Recent Posts (with AI Sentiment)</h4>';
+                    html += '<div id="posts-container" style="max-height: 200px; overflow-y: auto; background: #f1f3f5; padding: 0.5rem; border-radius: 4px;">Loading posts...</div>';
+                }
+
+                modalBody.innerHTML = html;
+
+                // Asynchronously load and render posts
+                if (AppState.currentView === 'influencers' && !isEditing) {
+                    const postsContainer = document.getElementById('posts-container');
+                    try {
+                        const res = await fetch(`/api/posts/influencer/${data.id}`);
+                        if (!res.ok) throw new Error('Failed to fetch posts');
+                        const posts = await res.json();
+                        
+                        if (posts.length > 0) {
+                            let postsHtml = '<ul>';
+                            posts.forEach(post => {
+                                postsHtml += `<li style="margin-bottom: 0.5rem;">${post.post_content.substring(0, 100)}... <strong>(AI Sentiment: ${post.ai_sentiment || 'N/A'})</strong></li>`;
+                            });
+                            postsHtml += '</ul>';
+                            postsContainer.innerHTML = postsHtml;
+                        } else {
+                            postsContainer.innerHTML = 'No posts found.';
+                        }
+                    } catch (err) {
+                        postsContainer.innerHTML = `Error: ${err.message}`;
+                    }
+                }
+
+                modalTitle.textContent = mode === 'create' ? `建立新${AppState.currentView === 'influencers' ? '網紅' : AppState.currentView === 'products' ? '產品' : '客戶'}` : data.real_name || data.product_name || data.company_name;
+                editButton.style.display = mode === 'view' ? 'inline-block' : 'none';
+                saveButton.style.display = isEditing ? 'inline-block' : 'none';
+            }
+
+            // --- Event Listeners ---
+            document.querySelector('.tab-nav').addEventListener('click', (event) => {
+                if (event.target.classList.contains('tab-link')) {
+                    AppState.currentView = event.target.dataset.tab;
+                    document.querySelectorAll('.tab-link').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    event.target.classList.add('active');
+                    document.getElementById(`${AppState.currentView}-view`).classList.add('active');
+                    loadTable();
+                }
+            });
+
+            document.querySelector('.container').addEventListener('click', (event) => {
+                const target = event.target;
+                if (target.classList.contains('create-button')) {
+                    AppState.currentId = null;
+                    renderModal({}, 'create');
+                    modal.style.display = 'block';
+                } else if (target.classList.contains('delete-button')) {
+                    const id = target.dataset.id;
+                    if (!confirm(`您確定要刪除 ID 為 ${id} 的項目嗎？`)) return;
+                    api[AppState.currentView].delete(id).then(() => loadTable());
+                } else if (target.closest('.row-clickable')) {
+                    const id = target.closest('.row-clickable').dataset.id;
+                    AppState.currentId = id;
+                    api[AppState.currentView].get(id).then(res => res.json()).then(data => {
+                        renderModal(data, 'view');
+                        modal.style.display = 'block';
+                    });
+                }
+            });
+
+            editButton.onclick = () => {
+                api[AppState.currentView].get(AppState.currentId).then(res => res.json()).then(data => renderModal(data, 'edit'));
+            };
+
+            saveButton.onclick = () => {
+                const payload = {};
+                document.querySelectorAll('.edit-mode').forEach(input => { payload[input.dataset.field] = input.value; });
+                const apiCall = AppState.currentMode === 'create' ? api[AppState.currentView].create(payload) : api[AppState.currentView].update(AppState.currentId, payload);
+                apiCall.then(res => {
+                    if (!res.ok) return res.json().then(err => { throw new Error(err.detail || 'Save failed!') });
+                    return res.json();
+                }).then(() => { modal.style.display = 'none'; loadTable(); })
+                .catch(err => alert(`儲存失敗: ${err.message}`));
+            };
+
+            closeButton.onclick = () => modal.style.display = "none";
+            window.onclick = (event) => { if (event.target == modal) modal.style.display = "none"; }
+
+            loadTable(); // Initial Load
+        });
+    </script>
+
+</body>
+</html>
